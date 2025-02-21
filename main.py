@@ -1,4 +1,3 @@
-import os
 import streamlit as st
 from functions.vectorstore import (
     get_pdf_text,

@@ -1,7 +1,5 @@
-from langchain.chat_models import ChatOpenAI
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings, HuggingFaceInstructEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
@@ -9,6 +7,7 @@ from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
 import streamlit as st
 from functions.prompt import template
+from functions.utils import groqClient
 
 
 custom_prompt = PromptTemplate(
@@ -45,12 +44,7 @@ def get_vectorstore(text_chunks):
     return vectorstore
 
 
-from functions.utils import groqClient
-
-
-
 def get_conversation_chain(vectorstore):
-    llm = ChatOpenAI()
     memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=groqClient,
