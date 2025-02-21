@@ -13,85 +13,83 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-api_key = os.getenv("OPENAI_API_KEY")
-
-
 def main():
-    favicon = Image.open("favicon.png")
+    # Set up favicon and page configuration
     st.set_page_config(
-        page_title="GenAI Demo | Trigent AXLR8 Labs",
-        page_icon=favicon,
+        page_title="Legal Document Summarizer",
+        page_icon="📔",
         layout="wide",
         initial_sidebar_state="expanded",
     )
 
-    # Sidebar Logo
-    logo_html = """
-    <style>
-        [data-testid="stSidebarNav"] {
-            background-image: url(https://trigent.com/wp-content/uploads/Trigent_Axlr8_Labs.png);
-            background-repeat: no-repeat;
-            background-position: 20px 20px;
-            background-size: 80%;
-        }
-    </style>
-    """
-    st.sidebar.markdown(logo_html, unsafe_allow_html=True)
-    st.title("Legal document summarizer 📗")
-    if api_key:
-        success_message_html = """
-        <span style='color:green; font-weight:bold;'>✅ Powering the Chatbot using Open AI's 
-        <a href='https://platform.openai.com/docs/models/gpt-3-5' target='_blank'>gpt-3.5-turbo-0613 model</a>!</span>
+    # -------------------------------
+    # Updated Sidebar Content
+    # -------------------------------
+    st.sidebar.markdown(
         """
+        <div style="background-color: #e0f7fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h2 style="text-align: center; color: #00796b;">Legal Document Summarizer</h2>
+            <p style="text-align: center; font-size: 14px; color: #004d40;">
+                Welcome to our AI-powered legal document summarizer. Upload your PDF files to receive concise, insightful summaries in seconds.
+            </p>
+        </div>
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 10px;">
+            <h4 style="color: #00796b;">Features</h4>
+            <ul style="font-size: 13px; color: #004d40; line-height: 1.6;">
+                <li>Extract text from PDF documents</li>
+                <li>Efficient text chunking for processing</li>
+                <li>AI-generated document summaries</li>
+                <li>User-friendly and intuitive interface</li>
+            </ul>
+            <hr style="border-top: 1px solid #ccc;">
+            <h4 style="color: #00796b;">How It Works</h4>
+            <p style="font-size: 12px; color: #004d40;">
+                Simply upload your legal PDF, click "Summarize", and let the AI do the rest!
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-        # Display the success message with the link
-        st.markdown(success_message_html, unsafe_allow_html=True)
-        openai_api_key = api_key
-    else:
-        openai_api_key = st.text_input("Enter your OPENAI_API_KEY: ", type="password")
-        if not openai_api_key:
-            st.warning("Please, enter your OPENAI_API_KEY", icon="⚠️")
-            stop = True
-        else:
-            st.success("Ask Tech voice assistant about your software.", icon="👉")
+    # -------------------------------
+    # Main App Content
+    # -------------------------------
+    st.title("Legal Document Summarizer 📗")
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = None
+        st.session_state.chat_history = []
 
-    pdf_docs = st.file_uploader("Upload you pdf here 📝")
+    pdf_docs = st.file_uploader("Upload your PDF here 📝", type=["pdf"])
     if st.button("Summarize"):
-        with st.spinner("summarizing 💡..."):
-            raw_text = get_pdf_text(pdf_docs)
+        if pdf_docs is not None:
+            with st.spinner("Summarizing the document..."):
+                raw_text = get_pdf_text(pdf_docs)
+                text_chunks = get_text_chunks(raw_text)
+                vectorstore = get_vectorstore(text_chunks)
+                st.session_state.conversation = get_conversation_chain(vectorstore)
+                handle_userinput("summarize the document")
+        else:
+            st.error("Please upload a PDF document.")
 
-            text_chunks = get_text_chunks(raw_text)
-
-            vectorstore = get_vectorstore(text_chunks)
-
-            st.session_state.conversation = get_conversation_chain(vectorstore)
-
-            handle_userinput("summarize the document")
-
-    if st.session_state.conversation:
+    if st.session_state.conversation and st.session_state.chat_history:
         st.subheader("Summary of the Document")
-        for message in st.session_state["chat_history"]:
+        for message in st.session_state.chat_history:
             st.write(message.content)
 
-    # Footer
+    # -------------------------------
+    # Updated Footer with LinkedIn and Github
+    # -------------------------------
     footer_html = """
-    <div style="text-align: right; margin-right: 10%;">
+    <div style="text-align: center; margin: 10px;">
         <p>
-            Copyright © 2024, Trigent Software, Inc. All rights reserved. | 
-            <a href="https://www.facebook.com/TrigentSoftware/" target="_blank">Facebook</a> |
-            <a href="https://www.linkedin.com/company/trigent-software/" target="_blank">LinkedIn</a> |
-            <a href="https://www.twitter.com/trigentsoftware/" target="_blank">Twitter</a> |
-            <a href="https://www.youtube.com/channel/UCNhAbLhnkeVvV6MBFUZ8hOw" target="_blank">YouTube</a>
+            © 2024. All rights reserved. | 
+            <a href="https://www.linkedin.com/in/saif-pasha-59643b197/" target="_blank">LinkedIn</a> | 
+            <a href="https://github.com/alsaif1431" target="_blank">Github</a>
         </p>
     </div>
     """
-
-    # Custom CSS to make the footer sticky
     footer_css = """
     <style>
     .footer {
@@ -100,22 +98,15 @@ def main():
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: white;
-        color: black;
+        background-color: #f1f1f1;
+        color: #333;
         text-align: center;
-    }
-    [data-testid="stSidebarNavItems"] {
-        max-height: 100%!important;
+        padding: 10px 0;
     }
     </style>
     """
-
-    # Combining the HTML and CSS
     footer = f"{footer_css}<div class='footer'>{footer_html}</div>"
-
-    # Rendering the footer
     st.markdown(footer, unsafe_allow_html=True)
-
 
 if __name__ == "__main__":
     main()

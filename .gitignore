@@ -1,3 +1,6 @@
 DocsSummary
 .env
 __pycache__
+.venv
+.streamlit
+models

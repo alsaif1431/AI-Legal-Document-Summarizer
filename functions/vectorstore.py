@@ -3,7 +3,6 @@ from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceInstructEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from dotenv import load_dotenv
@@ -34,18 +33,27 @@ def get_text_chunks(text):
     return chunks
 
 
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+
+# embeddings =
+
+
 def get_vectorstore(text_chunks):
-    load_dotenv()
-    embeddings = OpenAIEmbeddings()
+    load_dotenv(override=True)
+    embeddings = FastEmbedEmbeddings(cache_dir="models")
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 
 
+from functions.utils import groqClient
+
+
+
 def get_conversation_chain(vectorstore):
-    llm = ChatOpenAI(temperature=0.2)
+    llm = ChatOpenAI()
     memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
+        llm=groqClient,
         verbose=True,
         retriever=vectorstore.as_retriever(),
         memory=memory,
