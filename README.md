@@ -20,7 +20,7 @@ The application is capable summarizing the documents within the matter of "secon
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/legal-docs-summarizer.git
+   git@github.com:alsaif1431/AI-Legal-Document-Summarizer.git
    ```
 
 Navigate to the project directory:
