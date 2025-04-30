@@ -1,6 +1,6 @@
 # Legal Document Summarizer 📄
 
-## Overview
+## Overview 
 
 The Legal Document Summarizer is a Streamlit-based application that leverages Groq API to process legal documents and generate summaries. It allows users to upload PDF files,
 processes the content, and provides a summarized version of the document without having Images.
