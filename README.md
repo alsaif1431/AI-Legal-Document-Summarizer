@@ -1,4 +1,4 @@
-# Legal Document Summarizer 📄  
+# Legal Document Summarizer 📄   
 
 ## Overview
 
