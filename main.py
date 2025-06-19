@@ -1,4 +1,4 @@
-import streamlit as st    
+import streamlit as st     
 from functions.vectorstore import (
     get_pdf_text,
     get_text_chunks,
